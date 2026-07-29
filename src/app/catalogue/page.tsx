@@ -48,13 +48,16 @@ export default async function CataloguePage(props: {
 
   return (
     <div>
-      <div className="border-b-2 border-rule pb-6">
-        <p className="stencil text-blaze">
-          {source === 'api' ? '/ Live from the furniture shop' : '/ Local copy'}
-        </p>
-        <h1 className="display mt-3 text-6xl leading-[0.86] sm:text-8xl">
-          {category ?? 'The Floor'}
-        </h1>
+      <div className="section-title">
+        <span aria-hidden className="text-h1">🛒</span>
+        <div>
+          <p className="eyebrow text-teal">
+            {source === 'api' ? 'Live from the furniture shop' : 'Local copy'}
+          </p>
+          <h1 className="headline text-h1 leading-tight">
+            {category ?? 'Everything in store'}
+          </h1>
+        </div>
       </div>
 
       <nav className="mt-6 flex flex-wrap gap-2">
@@ -70,7 +73,7 @@ export default async function CataloguePage(props: {
       </nav>
 
       {products.length === 0 ? (
-        <p className="stencil mt-16 text-center text-ash">Nothing here.</p>
+        <p className="eyebrow mt-16 text-center text-ink-soft">Nothing here yet</p>
       ) : (
         <div className="mt-8 grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {products.map((product, index) => {
@@ -103,8 +106,8 @@ export default async function CataloguePage(props: {
           >
             ← Prev
           </PageLink>
-          <span className="numerals text-ash">
-            Page {String(currentPage).padStart(2, '0')}
+          <span className="numerals eyebrow text-ink-soft">
+            Page {currentPage}
           </span>
           <PageLink
             page={currentPage + 1}
@@ -195,15 +198,12 @@ function CatalogueUnavailable({ error }: { error: unknown }) {
       : "Couldn't reach the furniture shop just now."
 
   return (
-    <div className="mx-auto mt-20 max-w-xl">
-      <div className="hazard h-2" />
-      <div className="border-2 border-t-0 border-rule bg-plate p-8 shadow-[6px_6px_0_0_#000]">
-        <h1 className="display text-4xl sm:text-5xl">Catalogue down</h1>
-        <p className="mt-5 leading-relaxed text-ash">{message}</p>
-        <Link
-          href="/catalogue"
-          className="stencil press mt-8 inline-block border-2 border-blaze bg-blaze px-6 py-3.5 text-black shadow-[4px_4px_0_0_#000]"
-        >
+    <div className="mx-auto mt-16 max-w-xl">
+      <div className="game-card game-card-coral p-8 text-center">
+        <p aria-hidden className="text-display leading-none">🪑</p>
+        <h1 className="headline mt-4 text-h1">The catalogue isn&apos;t loading</h1>
+        <p className="mt-3 leading-relaxed text-ink-soft">{message}</p>
+        <Link href="/catalogue" className="pill pill-gold mt-7">
           Try again
         </Link>
       </div>
@@ -223,11 +223,7 @@ function CategoryChip({
   return (
     <Link
       href={href}
-      className={`stencil press border-2 px-3.5 py-2.5 ${
-        active
-          ? 'border-blaze bg-blaze text-black shadow-[3px_3px_0_0_#000]'
-          : 'border-rule bg-plate text-ash hover:border-rule-hot hover:text-bone'
-      }`}
+      className={`pill text-sm ${active ? 'pill-teal' : 'pill-ghost'}`}
     >
       {label}
     </Link>
@@ -245,7 +241,8 @@ function PageLink({
   disabled: boolean
   children: React.ReactNode
 }) {
-  if (disabled) return <span className="stencil text-rule-hot">{children}</span>
+  if (disabled)
+    return <span className="eyebrow text-ink-soft/40">{children}</span>
 
   const params = new URLSearchParams()
   if (category) params.set('category', category)
@@ -254,7 +251,7 @@ function PageLink({
   return (
     <Link
       href={`/catalogue?${params}`}
-      className="stencil text-bone hover:text-blaze"
+      className="pill pill-ghost text-sm"
     >
       {children}
     </Link>

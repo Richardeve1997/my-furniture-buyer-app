@@ -1,29 +1,14 @@
 import type { Metadata } from 'next'
-import { Anton, Archivo, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 import { SiteHeader } from '@/components/SiteHeader'
 
-// Anton for anything shouting, Archivo for anything explaining,
-// JetBrains Mono for anything countable.
-const anton = Anton({
-  weight: '400',
-  variable: '--font-anton',
-  subsets: ['latin'],
-})
-
-const archivo = Archivo({
-  variable: '--font-archivo',
-  subsets: ['latin'],
-})
-
-const mono = JetBrains_Mono({
-  variable: '--font-mono-stack',
-  subsets: ['latin'],
-})
+// The Flip7 spec calls for the native system stack rather than a webfont —
+// it's what gives the system its "app you already have" familiarity, and it
+// costs no loading time.
 
 export const metadata: Metadata = {
-  title: 'FURNITURE / BUYER',
-  description: 'Browse the catalogue. Spend the budget. Nothing subtle.',
+  title: 'Furniture Buyer',
+  description: 'Browse the catalogue and spend your budget.',
 }
 
 export default function RootLayout({
@@ -32,22 +17,16 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${anton.variable} ${archivo.variable} ${mono.variable} h-full antialiased`}
-    >
+    <html lang="en" className="h-full antialiased">
       <body className="min-h-full flex flex-col">
         <SiteHeader />
-        <main className="flex-1 w-full max-w-[1400px] mx-auto px-5 py-10 sm:px-8">
+        <main className="flex-1 w-full max-w-6xl mx-auto px-4 py-8 sm:px-6">
           {children}
         </main>
-        <footer className="mt-auto">
-          <div className="hazard h-2" />
-          <div className="border-t-2 border-rule bg-deck">
-            <div className="max-w-[1400px] mx-auto px-5 sm:px-8 py-5 flex flex-wrap gap-x-6 gap-y-1 justify-between">
-              <p className="stencil text-ash">Furniture / Buyer — Day 01</p>
-              <p className="stencil text-ash">Cognitivo × UNSW · Hackathon 2026</p>
-            </div>
+        <footer className="mt-auto border-t-2 border-dashed border-teal/25">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 py-5 flex flex-wrap gap-x-6 gap-y-1 justify-between">
+            <p className="eyebrow text-ink-soft">Furniture Buyer · Day 01</p>
+            <p className="eyebrow text-ink-soft">Cognitivo × UNSW · 2026</p>
           </div>
         </footer>
       </body>

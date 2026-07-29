@@ -1,169 +1,287 @@
 @import "tailwindcss";
 
 /*
- * INDUSTRIAL BRUTALISM
+ * FLIP7 DESIGN SYSTEM — ported to web
  *
- * Loading dock meets weight room. Concrete-black surfaces, safety orange,
- * acid lime. Nothing is rounded, nothing is soft, every edge is a hard rule.
- * Shadows do not blur — they offset, like a steel plate sitting on another
- * steel plate.
+ * Retro-playful teal / coral / gold. Bold, joyful, tactile: every element
+ * should feel like a game piece you want to tap.
+ *
+ * Two translation decisions from the original mini-program spec:
+ *
+ * 1. rpx -> rem. The source is WeChat mini-program units. Type is anchored so
+ *    body (28rpx) lands on 1rem/16px — a mini-program's 14px body is too small
+ *    for a desktop catalogue. Everything else scales from that anchor.
+ * 2. Spacing and radii use the straight 2:1 rpx->px ratio, which lands on a
+ *    4px grid and keeps the tight, chunky proportions of the original.
+ *
+ * Flip7-specific components (BOOM button, victory rankings, confetti, the
+ * FLIP7 logo) have no equivalent in a furniture catalogue and are not ported.
  */
 
 @theme {
-  /* Surfaces — layered concrete */
-  --color-pit: #08080a;
-  --color-deck: #101014;
-  --color-plate: #17171d;
-  --color-rule: #2a2a34;
-  --color-rule-hot: #3d3d4a;
+  /* Teal — main UI, headers, primary surfaces */
+  --color-teal: #2ba8a2;
+  --color-teal-light: #3cc4bd;
+  --color-teal-dark: #1e8c86;
+  --color-teal-bg: #e8f6f5;
 
-  /* Type */
-  --color-bone: #f4f1ea;
-  --color-ash: #8b8b97;
+  /* Gold — CTAs, highlights, celebrations */
+  --color-gold: #ffd23f;
+  --color-gold-light: #ffe47a;
+  --color-gold-dark: #e6b800;
 
-  /* Accents — safety signage */
-  --color-blaze: #ff4d00;
-  --color-volt: #ccff00;
-  --color-blood: #ff2d2d;
+  /* Coral — warnings, energy, "can't afford that" */
+  --color-coral: #ef6c4a;
+  --color-coral-light: #ff8a6a;
+  --color-coral-dark: #d45233;
 
-  --font-display: var(--font-anton), "Arial Narrow", sans-serif;
-  --font-body: var(--font-archivo), sans-serif;
-  --font-mono: var(--font-mono-stack), ui-monospace, monospace;
+  /* Surfaces */
+  --color-cream: #fff8e7;
+  --color-sky: #5dade2;
+  --color-base: #eff8f7;
+  --color-card: #ffffff;
+
+  --color-success: #27ae60;
+  --color-error: #e74c3c;
+
+  --color-ink: #17403e;
+  --color-ink-soft: #5c7f7d;
+
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei",
+    "Segoe UI", sans-serif;
+
+  /* Type scale — anchored so body = 1rem */
+  --text-display: 2.571rem;
+  --text-h1: 1.714rem;
+  --text-h2: 1.286rem;
+  --text-h3: 1.143rem;
+  --text-body: 1rem;
+  --text-sm: 0.857rem;
+  --text-xs: 0.714rem;
+
+  /* Spacing — 8rpx base at 2:1 */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 0.75rem;
+  --spacing-lg: 1rem;
+  --spacing-xl: 1.5rem;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-round: 9999px;
 }
 
 :root {
-  color-scheme: dark;
+  /* Elevation — colored glows, never plain black on interactive elements */
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.16);
+  --shadow-card: 0 2px 10px rgba(43, 168, 162, 0.1);
+  --shadow-teal-glow: 0 2px 10px rgba(43, 168, 162, 0.3);
+  --shadow-coral-glow: 0 2px 10px rgba(239, 108, 74, 0.35);
+  --shadow-accent-glow: 0 2px 10px rgba(255, 210, 63, 0.4);
+  --shadow-sky-glow: 0 2px 8px rgba(93, 173, 226, 0.3);
+  --shadow-focus: 0 0 0 2px rgba(43, 168, 162, 0.15);
+
+  /* Bounce — springy, and never longer than 500ms */
+  --bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 body {
-  background-color: var(--color-pit);
-  color: var(--color-bone);
-  font-family: var(--font-body);
-  /* Concrete grain — a fixed noise wash so surfaces never read as flat fill */
-  background-image:
-    radial-gradient(circle at 15% -10%, rgba(255, 77, 0, 0.11), transparent 45%),
-    radial-gradient(circle at 100% 0%, rgba(204, 255, 0, 0.06), transparent 38%);
-  background-attachment: fixed;
+  background-color: var(--color-base);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
 }
 
-/* Grain overlay, sits above the background and below everything else */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  opacity: 0.22;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 220 220' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+/* ------------------------------------------------------------- typography */
+
+.headline {
+  font-weight: 800;
+  letter-spacing: 0.02em;
 }
 
-body > * {
-  position: relative;
-  z-index: 1;
-}
-
-/* ---------------------------------------------------------------- type */
-
-/* Line-height is deliberately NOT set here: Anton is very tight by default and
-   the right value differs between a one-line page title and a wrapping product
-   name. Callers set `leading-*` themselves. */
-.display {
-  font-family: var(--font-display);
+.eyebrow {
+  font-weight: 800;
+  font-size: var(--text-xs);
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  letter-spacing: -0.02em;
-}
-
-.stencil {
-  font-family: var(--font-body);
-  text-transform: uppercase;
-  letter-spacing: 0.22em;
-  font-weight: 700;
-  font-size: 0.66rem;
 }
 
 .numerals {
-  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
 }
 
-/* ------------------------------------------------------------- surfaces */
+/* Playful dashed divider under section titles */
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1.5px dashed rgba(43, 168, 162, 0.35);
+}
 
-/* Hazard tape. Used as a top rule on key panels. */
-.hazard {
-  background-image: repeating-linear-gradient(
-    -45deg,
-    var(--color-blaze) 0px,
-    var(--color-blaze) 10px,
-    #0b0b0d 10px,
-    #0b0b0d 20px
+/* ------------------------------------------------------------- components */
+
+/* Pill button. Min height 36px (72rpx) so every touch target clears the bar. */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 var(--spacing-xl);
+  border-radius: var(--radius-round);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  transition:
+    transform 180ms var(--bounce),
+    box-shadow 180ms var(--bounce),
+    background-color 180ms ease;
+}
+
+.pill:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+/* Gold CTA with a gloss sweep across the top half */
+.pill-gold {
+  position: relative;
+  overflow: hidden;
+  background-image: linear-gradient(
+    180deg,
+    var(--color-gold-light) 0%,
+    var(--color-gold) 100%
+  );
+  color: var(--color-ink);
+  box-shadow: var(--shadow-accent-glow);
+}
+
+.pill-gold::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 50% 0;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.55),
+    rgba(255, 255, 255, 0)
+  );
+  pointer-events: none;
+}
+
+.pill-gold:hover:not(:disabled) {
+  background-image: linear-gradient(
+    180deg,
+    var(--color-gold) 0%,
+    var(--color-gold-dark) 100%
   );
 }
 
-/* A plate sitting on the deck: hard border, hard offset shadow. */
-.plate {
-  border: 2px solid var(--color-rule);
-  background-color: var(--color-plate);
-  box-shadow: 6px 6px 0 0 #000;
+.pill-teal {
+  background-color: var(--color-teal);
+  color: #fff;
+  box-shadow: var(--shadow-teal-glow);
 }
 
-.plate-hot {
-  border-color: var(--color-blaze);
-  box-shadow: 6px 6px 0 0 var(--color-blaze);
+.pill-teal:hover:not(:disabled) {
+  background-color: var(--color-teal-light);
 }
 
-/* Press effect: the plate sinks into the deck under the cursor. */
-.press {
+.pill-ghost {
+  background-color: #fff;
+  color: var(--color-teal-dark);
+  border: 1.5px solid rgba(43, 168, 162, 0.3);
+}
+
+.pill-ghost:hover {
+  border-color: var(--color-teal);
+  box-shadow: var(--shadow-teal-glow);
+}
+
+/*
+ * Card with a colored left accent bar. The bar carries state — this is the
+ * system's main state-communication device, so it's a 4px inset border
+ * rather than decoration.
+ */
+.game-card {
+  background-color: var(--color-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  border-left: 4px solid var(--color-teal-light);
   transition:
-    transform 90ms cubic-bezier(0.2, 0, 0, 1),
-    box-shadow 90ms cubic-bezier(0.2, 0, 0, 1),
-    background-color 120ms linear;
+    transform 200ms var(--bounce),
+    box-shadow 200ms var(--bounce);
 }
 
-.press:hover:not(:disabled) {
-  transform: translate(-2px, -2px);
-  box-shadow: 8px 8px 0 0 #000;
+.game-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-teal-glow);
 }
 
-.press:active:not(:disabled) {
-  transform: translate(4px, 4px);
-  box-shadow: 0 0 0 0 #000;
+.game-card-gold {
+  border-left-color: var(--color-gold);
+  box-shadow: var(--shadow-accent-glow);
 }
 
-/* -------------------------------------------------------------- motion */
+.game-card-coral {
+  border-left-color: var(--color-coral);
+  box-shadow: var(--shadow-coral-glow);
+}
 
-@keyframes rack-in {
+/* Cream input surfaces, per the spec */
+.field {
+  width: 100%;
+  background-color: var(--color-cream);
+  border: 1.5px solid rgba(43, 168, 162, 0.25);
+  border-radius: var(--radius-md);
+  padding: 0.625rem 0.875rem;
+  color: var(--color-ink);
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.field:focus {
+  outline: none;
+  border-color: var(--color-teal);
+  box-shadow: var(--shadow-focus);
+}
+
+/* ----------------------------------------------------------------- motion */
+
+@keyframes pop-in {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(8px) scale(0.98);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
-.rack-in {
-  animation: rack-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+.pop-in {
+  animation: pop-in 320ms var(--bounce) both;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .rack-in {
+  .pop-in {
     animation: none;
   }
-  .press:hover:not(:disabled),
-  .press:active:not(:disabled) {
+  .game-card:hover,
+  .pill:active:not(:disabled) {
     transform: none;
   }
 }
 
-/* Focus that matches the rest of the language: a hard orange block */
 *:focus-visible {
-  outline: 3px solid var(--color-blaze);
+  outline: 2px solid var(--color-teal);
   outline-offset: 2px;
 }
 
 ::selection {
-  background: var(--color-volt);
-  color: #000;
+  background: var(--color-gold-light);
+  color: var(--color-ink);
 }

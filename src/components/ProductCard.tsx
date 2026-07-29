@@ -28,12 +28,20 @@ export function ProductCard({
     null,
   )
 
+  // The left accent bar carries state: teal by default, gold on a successful
+  // order, coral when the shop said no.
+  const stateClass = result
+    ? result.ok
+      ? 'game-card-gold'
+      : 'game-card-coral'
+    : ''
+
   return (
     <article
-      className="rack-in group flex flex-col border-2 border-rule bg-plate transition-colors hover:border-rule-hot"
-      style={{ animationDelay: `${Math.min(index, 12) * 35}ms` }}
+      className={`game-card pop-in group flex flex-col overflow-hidden ${stateClass}`}
+      style={{ animationDelay: `${Math.min(index, 12) * 30}ms` }}
     >
-      <div className="relative aspect-square shrink-0 overflow-hidden border-b-2 border-rule bg-[#e8e5de]">
+      <div className="relative aspect-square shrink-0 overflow-hidden bg-cream">
         {product.hasImage ? (
           // Plain <img>: served by our own route from base64 in the database,
           // already sized sensibly, so there's nothing to optimise.
@@ -41,36 +49,34 @@ export function ProductCard({
           <img
             src={`/api/products/${product.itemId}/image`}
             alt={product.productName}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
             loading="lazy"
           />
         ) : (
-          <div className="flex h-full items-center justify-center">
-            <span className="stencil text-[#a09c93]">No image</span>
+          <div className="grid h-full place-items-center">
+            <span className="eyebrow text-ink-soft">No image</span>
           </div>
         )}
 
-        <span className="stencil absolute left-0 top-0 bg-black px-2.5 py-1.5 text-volt">
+        <span className="eyebrow absolute left-2.5 top-2.5 rounded-round bg-teal px-2.5 py-1 text-white shadow-[0_2px_8px_rgba(43,168,162,0.3)]">
           {product.category}
         </span>
       </div>
 
       <div className="flex flex-1 flex-col p-4">
-        {/* Two lines max, with room for descenders — these names are long and
-            the display face is set very tight by default. */}
-        <h2 className="display line-clamp-2 min-h-[2.3em] text-lg leading-[1.15] text-bone">
+        <h2 className="headline line-clamp-2 min-h-[2.6em] text-h3 leading-snug">
           {product.productName}
         </h2>
 
-        <p className="stencil mt-1 min-h-[1.2em] text-ash">
+        <p className="min-h-[1.3em] text-sm text-ink-soft">
           {product.colours.join(' · ')}
         </p>
 
-        <p className="numerals mt-4 text-3xl font-bold leading-none text-bone">
+        <p className="numerals mt-2.5 text-h1 font-extrabold leading-none text-teal-dark">
           {formatCents(product.priceCents)}
         </p>
 
-        <div className="mt-auto pt-5">
+        <div className="mt-auto pt-4">
           {canOrder ? (
             <form action={formAction}>
               <input type="hidden" name="itemId" value={product.itemId} />
@@ -78,13 +84,13 @@ export function ProductCard({
               <button
                 type="submit"
                 disabled={pending}
-                className="stencil press w-full border-2 border-blaze bg-blaze py-3.5 text-black shadow-[4px_4px_0_0_#000] hover:bg-volt hover:border-volt disabled:cursor-wait disabled:border-rule disabled:bg-plate disabled:text-ash disabled:shadow-none"
+                className="pill pill-gold w-full disabled:cursor-wait disabled:opacity-60"
               >
                 {pending ? 'Placing…' : 'Buy it'}
               </button>
             </form>
           ) : (
-            <p className="stencil border-2 border-dashed border-rule py-3.5 text-center text-ash">
+            <p className="eyebrow rounded-round border-2 border-dashed border-teal/30 py-2.5 text-center text-ink-soft">
               Log in to order
             </p>
           )}
@@ -92,12 +98,13 @@ export function ProductCard({
           {result && (
             <p
               role="status"
-              className={`mt-3 border-l-4 px-3 py-2.5 text-sm leading-snug ${
+              className={`mt-3 rounded-md px-3 py-2.5 text-sm leading-snug ${
                 result.ok
-                  ? 'border-volt bg-volt/10 text-volt'
-                  : 'border-blood bg-blood/10 text-[#ff8080]'
+                  ? 'bg-gold-light/50 text-ink'
+                  : 'bg-coral/10 text-coral-dark'
               }`}
             >
+              {result.ok ? '🎉 ' : '⚠️ '}
               {result.message}
             </p>
           )}

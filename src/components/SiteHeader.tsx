@@ -19,59 +19,49 @@ export async function SiteHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-20">
-      <div className="hazard h-2" />
-      <div className="border-b-2 border-rule bg-deck/95 backdrop-blur">
-        <div className="max-w-[1400px] mx-auto px-5 sm:px-8 h-20 flex items-center gap-8">
-          <Link href="/catalogue" className="group shrink-0">
-            <span className="display block text-2xl sm:text-3xl leading-none">
-              Furniture
+    <header className="sticky top-0 z-20 bg-teal shadow-[0_2px_10px_rgba(43,168,162,0.3)]">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center gap-6">
+        <Link href="/catalogue" className="group flex items-center gap-2.5">
+          <span
+            aria-hidden
+            className="grid h-9 w-9 place-items-center rounded-xl bg-cream text-lg shadow-[0_2px_8px_rgba(0,0,0,0.12)] transition-transform duration-200 group-hover:-rotate-6"
+          >
+            🛋️
+          </span>
+          <span className="headline text-h2 leading-none text-white">
+            Furniture&nbsp;Buyer
+          </span>
+        </Link>
+
+        <nav className="hidden sm:flex items-center gap-1">
+          <HeaderLink href="/catalogue">Catalogue</HeaderLink>
+          {user && <HeaderLink href="/orders">My orders</HeaderLink>}
+        </nav>
+
+        <div className="ml-auto flex items-center gap-3">
+          {budget && (
+            <span
+              className="numerals inline-flex items-center gap-1.5 rounded-round bg-gold px-3.5 py-1.5 text-sm font-extrabold text-ink shadow-[0_2px_10px_rgba(255,210,63,0.4)]"
+              title={
+                budget.source === 'api'
+                  ? 'Live balance from the furniture shop'
+                  : 'Placeholder balance — no API key configured'
+              }
+            >
+              <span aria-hidden>💰</span>
+              {formatCents(budget.remainingCents)}
             </span>
-            <span className="display block text-2xl sm:text-3xl leading-none text-blaze transition-colors group-hover:text-volt">
-              Buyer
-            </span>
-          </Link>
+          )}
 
-          <nav className="hidden sm:flex items-center gap-6">
-            <HeaderLink href="/catalogue">Catalogue</HeaderLink>
-            {user && <HeaderLink href="/orders">Orders</HeaderLink>}
-          </nav>
-
-          <div className="ml-auto flex items-center gap-4 sm:gap-6">
-            {budget && (
-              <div
-                className="text-right leading-none"
-                title={
-                  budget.source === 'api'
-                    ? 'Live balance from the furniture shop'
-                    : 'Placeholder balance — no API key configured'
-                }
-              >
-                <p className="stencil text-ash">
-                  {budget.source === 'api' ? 'Live budget' : 'Budget (local)'}
-                </p>
-                <p className="numerals mt-1.5 text-xl sm:text-2xl font-bold text-volt">
-                  {formatCents(budget.remainingCents)}
-                </p>
-              </div>
-            )}
-
-            {user ? (
-              <form action={logout} className="flex items-center gap-4">
-                <span className="stencil hidden text-ash md:block">{user.name}</span>
-                <button className="stencil press border-2 border-rule bg-plate px-4 py-2.5 text-bone hover:border-blood hover:text-blood">
-                  Log out
-                </button>
-              </form>
-            ) : (
-              <Link
-                href="/login"
-                className="stencil press border-2 border-blaze bg-blaze px-5 py-2.5 text-black shadow-[4px_4px_0_0_#000]"
-              >
-                Log in
-              </Link>
-            )}
-          </div>
+          {user ? (
+            <form action={logout}>
+              <button className="pill pill-ghost text-sm">Log out</button>
+            </form>
+          ) : (
+            <Link href="/login" className="pill pill-gold text-sm">
+              Log in
+            </Link>
+          )}
         </div>
       </div>
     </header>
@@ -82,7 +72,7 @@ function HeaderLink({ href, children }: { href: string; children: React.ReactNod
   return (
     <Link
       href={href}
-      className="stencil relative text-ash transition-colors hover:text-bone after:absolute after:-bottom-2 after:left-0 after:h-0.5 after:w-0 after:bg-blaze after:transition-all hover:after:w-full"
+      className="rounded-round px-3.5 py-2 text-sm font-bold text-white/85 transition-colors duration-200 hover:bg-white/15 hover:text-white"
     >
       {children}
     </Link>

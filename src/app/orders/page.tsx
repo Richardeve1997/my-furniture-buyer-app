@@ -18,16 +18,19 @@ export default async function OrdersPage() {
 
   return (
     <div>
-      <div className="border-b-2 border-rule pb-6">
-        <p className="stencil text-blaze">
-          {budget?.source === 'api'
-            ? '/ Straight from the furniture shop'
-            : '/ Local placeholder balance'}
-        </p>
-        <h1 className="display mt-3 text-6xl leading-[0.86] sm:text-8xl">The Haul</h1>
+      <div className="section-title">
+        <span aria-hidden className="text-h1">🧾</span>
+        <div>
+          <p className="eyebrow text-teal">
+            {budget?.source === 'api'
+              ? 'Straight from the furniture shop'
+              : 'Local placeholder balance'}
+          </p>
+          <h1 className="headline text-h1 leading-tight">My orders</h1>
+        </div>
       </div>
 
-      <dl className="mt-8 grid gap-5 grid-cols-1 sm:grid-cols-3">
+      <dl className="mt-7 grid gap-4 grid-cols-1 sm:grid-cols-3">
         <Stat label="Orders placed" value={String(orders.length)} />
         <Stat label="Total spent" value={formatCents(spentCents)} />
         <Stat
@@ -38,31 +41,29 @@ export default async function OrdersPage() {
       </dl>
 
       {error && (
-        <p role="alert" className="mt-8 border-l-4 border-blood bg-blood/10 px-4 py-3 text-sm text-[#ff8080]">
-          {error}
+        <p role="alert" className="mt-8 rounded-md bg-coral/10 px-4 py-3 text-sm text-coral-dark">
+          ⚠️ {error}
         </p>
       )}
 
       {orders.length === 0 && !error ? (
-        <div className="mt-12 border-2 border-dashed border-rule p-12 text-center">
-          <p className="display text-3xl text-ash">Nothing bought yet</p>
-          <Link
-            href="/catalogue"
-            className="stencil press mt-7 inline-block border-2 border-blaze bg-blaze px-6 py-3.5 text-black shadow-[4px_4px_0_0_#000]"
-          >
+        <div className="mt-10 rounded-lg border-2 border-dashed border-teal/30 p-12 text-center">
+          <p aria-hidden className="text-display leading-none">🪑</p>
+          <p className="headline mt-3 text-h2">Nothing bought yet</p>
+          <Link href="/catalogue" className="pill pill-gold mt-6">
             Go shopping
           </Link>
         </div>
       ) : (
-        <ul className="mt-10 space-y-4">
+        <ul className="mt-8 space-y-4">
           {orders.map((order, index) => (
             <li
               key={order.id}
-              className="rack-in border-2 border-rule bg-plate p-5 transition-colors hover:border-rule-hot"
+              className="game-card pop-in p-5"
               style={{ animationDelay: `${Math.min(index, 10) * 40}ms` }}
             >
-              <div className="flex flex-wrap items-baseline justify-between gap-2 border-b-2 border-rule pb-3">
-                <p className="stencil text-ash">
+              <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-dashed border-teal/25 pb-3">
+                <p className="eyebrow text-ink-soft">
                   {order.placedAt
                     ? order.placedAt.toLocaleString('en-AU', {
                         dateStyle: 'medium',
@@ -70,17 +71,17 @@ export default async function OrdersPage() {
                       })
                     : 'Recently'}
                 </p>
-                <p className="numerals text-2xl font-bold text-volt">
+                <p className="numerals text-h2 font-extrabold text-teal-dark">
                   {formatCents(order.totalCents)}
                 </p>
               </div>
-              <ul className="mt-3 space-y-1.5 text-sm text-bone">
+              <ul className="mt-3 space-y-1.5 text-sm">
                 {order.lines.map((line, index) => (
                   <li key={`${order.id}-${index}`} className="flex justify-between gap-4">
                     <span>
                       {line.quantity} × {line.name}
                     </span>
-                    <span className="numerals text-ash">
+                    <span className="numerals text-ink-soft">
                       {formatCents(line.totalCents)}
                     </span>
                   </li>
@@ -177,16 +178,12 @@ function Stat({
 }) {
   return (
     <div
-      className={`border-2 p-5 ${
-        emphasis
-          ? 'border-volt bg-volt/5 shadow-[6px_6px_0_0_#000]'
-          : 'border-rule bg-plate'
-      }`}
+      className={`game-card p-5 ${emphasis ? 'game-card-gold' : ''}`}
     >
-      <dt className="stencil text-ash">{label}</dt>
+      <dt className="eyebrow text-ink-soft">{label}</dt>
       <dd
-        className={`numerals mt-3 text-3xl font-bold leading-none ${
-          emphasis ? 'text-volt' : 'text-bone'
+        className={`numerals mt-2.5 text-h1 font-extrabold leading-none ${
+          emphasis ? 'text-gold-dark' : 'text-teal-dark'
         }`}
       >
         {value}
