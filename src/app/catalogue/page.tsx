@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { db } from '@/lib/db'
 import { getCurrentUser } from '@/lib/session'
 import { ProductCard } from '@/components/ProductCard'
+import { AgentChat } from '@/components/AgentChat'
 import {
   ApiError,
   fetchCategories,
@@ -59,6 +60,12 @@ export default async function CataloguePage(props: {
           </h1>
         </div>
       </div>
+
+      {user && (
+        <div className="mt-6">
+          <AgentChat />
+        </div>
+      )}
 
       <nav className="mt-6 flex flex-wrap gap-2">
         <CategoryChip label="All" href="/catalogue" active={!category} />
