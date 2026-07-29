@@ -10,13 +10,13 @@ A small furniture shop has a real online catalogue, a real (event-only) bank bal
 
 | Requirement | What it means here | Status |
 |---|---|---|
-| Business domain entity model | Customer, Product, Order, OrderItem, and how they relate | ☐ |
-| Web user interface | Pages a person opens in a browser and clicks around | ☐ |
-| User login | Tell one user apart from another | ☐ |
-| Save data in a database | Users and orders survive closing and reopening the app | ☐ |
-| Workflow / controller logic | Rules beyond displaying data — can't order beyond your balance | ☐ |
-| Generate reports | A page summarising past orders and total spent | ☐ |
-| Accessible via the internet | Someone on another network can open it | ☐ |
+| Business domain entity model | Customer, Product, Order, OrderItem, and how they relate | ✅ |
+| Web user interface | Pages a person opens in a browser and clicks around | ✅ |
+| User login | Tell one user apart from another | ✅ |
+| Save data in a database | Users and orders survive closing and reopening the app | ✅ |
+| Workflow / controller logic | Rules beyond displaying data — can't order beyond your balance | ✅ |
+| Generate reports | A page summarising past orders and total spent | ✅ |
+| Accessible via the internet | Someone on another network can open it | ✅ |
 
 A working simple version of each is a complete Level 1. Polish is for leftover time.
 
