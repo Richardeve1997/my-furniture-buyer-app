@@ -9,7 +9,7 @@ export type ProductCardProduct = {
   productName: string
   priceCents: number
   category: string
-  imageUrl: string | null
+  hasImage: boolean
   colours: string[]
 }
 
@@ -27,14 +27,14 @@ export function ProductCard({
 
   return (
     <article className="flex flex-col rounded-lg border border-stone-200 bg-white overflow-hidden">
-      <div className="aspect-4/3 bg-stone-100 flex items-center justify-center">
-        {product.imageUrl ? (
-          // Plain <img> rather than next/image: the catalogue images come from
-          // a host we don't control, and Next 16 requires each remote host be
-          // declared in images.remotePatterns before next/image will load it.
+      <div className="aspect-[4/3] shrink-0 bg-stone-100 flex items-center justify-center overflow-hidden">
+        {product.hasImage ? (
+          // Plain <img> rather than next/image: these are served by our own
+          // route from base64 stored in the database, already sized sensibly,
+          // so there's nothing for the image optimiser to do.
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={product.imageUrl}
+            src={`/api/products/${product.itemId}/image`}
             alt={product.productName}
             className="h-full w-full object-cover"
             loading="lazy"
@@ -50,7 +50,9 @@ export function ProductCard({
         <p className="text-xs uppercase tracking-wide text-stone-500">
           {product.category}
         </p>
-        <h2 className="mt-1 font-medium leading-snug">{product.productName}</h2>
+        <h2 className="mt-1 font-medium leading-snug line-clamp-2">
+          {product.productName}
+        </h2>
 
         {product.colours.length > 0 && (
           <p className="mt-1 text-xs text-stone-500">

@@ -26,6 +26,17 @@ export default async function CataloguePage(props: {
       orderBy: { productName: 'asc' },
       skip: (currentPage - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
+      // Deliberately excludes imageBase64 — it's ~65KB per product, and the
+      // images are fetched separately via /api/products/{itemId}/image.
+      select: {
+        itemId: true,
+        productName: true,
+        displayName: true,
+        priceCents: true,
+        category: true,
+        coloursJson: true,
+        imageMimeType: true,
+      },
     }),
     db.product.count({ where }),
   ])
@@ -67,10 +78,10 @@ export default async function CataloguePage(props: {
               canOrder={Boolean(user)}
               product={{
                 itemId: product.itemId,
-                productName: product.productName,
+                productName: product.displayName ?? product.productName,
                 priceCents: product.priceCents,
                 category: product.category,
-                imageUrl: product.imageUrl,
+                hasImage: product.imageMimeType !== null,
                 colours: safeColours(product.coloursJson),
               }}
             />

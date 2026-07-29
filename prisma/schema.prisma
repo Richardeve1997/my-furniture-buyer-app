@@ -37,14 +37,28 @@ model Product {
   priceCents  Int
   category    String
 
+  /// A human-readable name derived from the product page slug at import time.
+  /// The raw `product_name` in the source data is a generic descriptor
+  /// ("1 section", "Bar table"), which is useless on screen — the real name
+  /// ("Nordviken Bar Table Black") only exists inside the `link` URL.
+  displayName String?
+
   /// SQLite has no array type, so the colour list is stored as JSON text.
   coloursJson String @default("[]")
   colourCount Int    @default(0)
 
-  /// Direct link to the product photo. Only available via MongoDB —
-  /// the API would make us pull a base64 blob instead.
-  imageUrl String?
-  link     String?
+  /// The product photo, base64-encoded.
+  ///
+  /// Note: the lab guide describes MongoDB's `image_url` as "a direct link to
+  /// the product image - not a base64 blob". In the actual data it *is* a
+  /// base64 blob, so we store it as one and serve it through our own
+  /// /api/products/{itemId}/image route rather than inlining ~65KB per product
+  /// into every page of the catalogue.
+  imageBase64   String?
+  imageMimeType String?
+
+  /// The shop's public product page.
+  link String?
 
   /// Dimensions in cm. Available through MongoDB only — no API endpoint returns these.
   depth  Float?
