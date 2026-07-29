@@ -1,0 +1,93 @@
+// Data model for the furniture buyer's app.
+// Plain-English explanation lives in architecture.md — keep the two in sync.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+/// Someone who can log into our app.
+model User {
+  id           String @id @default(cuid())
+  email        String @unique
+  name         String
+  passwordHash String
+
+  /// The ID the furniture shop's API knows this person by, e.g. "u001".
+  /// This is how our login connects to their real balance.
+  apiUserId String
+
+  /// Temporary stand-in balance, used only until the real API is connected
+  /// in Lab 2. Stored in whole cents. Never shown once the API is live.
+  placeholderBalanceCents Int @default(500000)
+
+  orders    Order[]
+  createdAt DateTime @default(now())
+}
+
+/// One item in the furniture catalogue, imported from the shared MongoDB.
+model Product {
+  /// The shop's own identifier, e.g. "CHR-001". This is what the API speaks.
+  itemId      String @id
+  productName String
+  priceCents  Int
+  category    String
+
+  /// SQLite has no array type, so the colour list is stored as JSON text.
+  coloursJson String @default("[]")
+  colourCount Int    @default(0)
+
+  /// Direct link to the product photo. Only available via MongoDB —
+  /// the API would make us pull a base64 blob instead.
+  imageUrl String?
+  link     String?
+
+  /// Dimensions in cm. Available through MongoDB only — no API endpoint returns these.
+  depth  Float?
+  height Float?
+  width  Float?
+
+  orderItems OrderItem[]
+}
+
+/// One purchase made through our app.
+model Order {
+  id         String @id @default(cuid())
+  userId     String
+  totalCents Int
+
+  /// "placed" once accepted. Later: mirrors the real API's status.
+  status String @default("placed")
+
+  /// The order ID the real furniture-shop API returns, so our record
+  /// can be traced back to theirs. Null until Lab 2 connects the API.
+  externalOrderId String?
+
+  user      User        @relation(fields: [userId], references: [id])
+  items     OrderItem[]
+  createdAt DateTime    @default(now())
+
+  @@index([userId])
+}
+
+/// One line within an order.
+model OrderItem {
+  id       String @id @default(cuid())
+  orderId  String
+  itemId   String
+  quantity Int    @default(1)
+
+  /// The price at the time of purchase. Deliberately copied rather than
+  /// read from Product later — catalogue prices change, and an old receipt
+  /// should never silently change with them.
+  unitPriceCents Int
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [itemId], references: [itemId])
+
+  @@index([orderId])
+}

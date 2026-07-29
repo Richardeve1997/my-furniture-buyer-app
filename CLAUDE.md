@@ -54,3 +54,7 @@ These come from the lab materials and are not negotiable.
 - Remaining budget is calculated from orders, never stored as a running total — stored totals drift out of sync after a crash and then the number on screen is a lie.
 - `app/` is what a user sees, `lib/` is the thinking, `components/` is anything appearing more than once.
 - Commit messages in plain English, describing the outcome.
+
+## Framework notes
+
+@AGENTS.md
