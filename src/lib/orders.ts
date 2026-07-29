@@ -32,11 +32,23 @@ export async function placeOrder(
   const itemId = String(formData.get('itemId') ?? '')
   const quantity = Math.max(1, Number(formData.get('quantity') ?? 1))
 
-  const product = await db.product.findUnique({ where: { itemId } })
+  const product = await db.product.findUnique({
+    where: { itemId },
+    // Excludes imageBase64 — ~65KB we'd never use here.
+    select: {
+      itemId: true,
+      productName: true,
+      displayName: true,
+      priceCents: true,
+    },
+  })
   if (!product) {
     return { ok: false, message: 'This item is no longer available.' }
   }
 
+  // Match what the catalogue card shows, so the confirmation names the same
+  // thing the user thought they clicked.
+  const name = product.displayName ?? product.productName
   const totalCents = product.priceCents * quantity
 
   const { ok, remainingCents, shortfallCents } = await canAfford(
@@ -48,7 +60,7 @@ export async function placeOrder(
     return {
       ok: false,
       message:
-        `Not enough balance. ${product.productName} costs ${formatCents(totalCents)}, ` +
+        `Not enough balance. ${name} costs ${formatCents(totalCents)}, ` +
         `but you have ${formatCents(remainingCents)} left — ` +
         `${formatCents(shortfallCents)} short.`,
     }
@@ -77,6 +89,6 @@ export async function placeOrder(
   return {
     ok: true,
     orderId: order.id,
-    message: `Ordered ${product.productName} for ${formatCents(totalCents)}.`,
+    message: `Ordered ${name} for ${formatCents(totalCents)}.`,
   }
 }
