@@ -6,7 +6,17 @@ import { logout } from '@/lib/auth'
 
 export async function SiteHeader() {
   const user = await getCurrentUser()
-  const budget = user?.userId ? await getBudget(user.userId) : null
+
+  // A failing balance lookup must not take the whole site's header down —
+  // every page renders through here, including the catalogue.
+  let budget = null
+  if (user?.userId) {
+    try {
+      budget = await getBudget(user.userId)
+    } catch (error) {
+      console.error('[header] could not load balance', error)
+    }
+  }
 
   return (
     <header className="border-b border-stone-200 bg-white">
@@ -30,7 +40,11 @@ export async function SiteHeader() {
           {budget && (
             <span
               className="tabular-nums rounded-full bg-emerald-50 text-emerald-800 px-3 py-1 font-medium"
-              title="Remaining budget"
+              title={
+                budget.source === 'api'
+                  ? 'Live balance from the furniture shop'
+                  : 'Placeholder balance — no API key configured'
+              }
             >
               {formatCents(budget.remainingCents)} left
             </span>

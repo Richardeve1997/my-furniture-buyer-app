@@ -1,34 +1,42 @@
 import { db } from '@/lib/db'
+import { fetchBalance, isApiConfigured } from '@/lib/api'
 
 /**
- * Budget calculation.
+ * How much the current user has left to spend.
  *
- * The remaining balance is always *calculated* from the orders on record —
- * never stored as a running total. A stored total drifts out of sync after any
- * crash or bug, and then the number on screen is a lie you can't trace.
+ * Once an organiser's key is in .env this comes from the furniture shop's API,
+ * which is the only thing that actually knows the balance — it's decremented by
+ * the shop when an order is placed, not by us.
  *
- * In Lab 2 the starting balance stops coming from our own database and starts
- * coming from the furniture-shop API. Only `getBudget` needs to change.
+ * Before the key exists (and if it's ever removed) we fall back to the local
+ * placeholder balance, so the app still runs rather than showing an error page.
+ * That fallback is what Level 1 used.
  */
 
 export type Budget = {
-  /** What they started with, in cents. */
-  startingCents: number
-  /** What they've spent through this app, in cents. */
-  spentCents: number
-  /** What's left, in cents. Never negative. */
   remainingCents: number
+  /** Where the number came from, so the UI can be honest about it. */
+  source: 'api' | 'placeholder'
+  /** Only known in placeholder mode — the API reports a balance, not a history. */
+  startingCents?: number
+  spentCents?: number
 }
 
 export async function getBudget(userId: string): Promise<Budget> {
+  if (isApiConfigured()) {
+    const balance = await fetchBalance()
+    return { remainingCents: balance.balanceCents, source: 'api' }
+  }
+  return getPlaceholderBudget(userId)
+}
+
+async function getPlaceholderBudget(userId: string): Promise<Budget> {
   const user = await db.user.findUnique({
     where: { id: userId },
     select: { placeholderBalanceCents: true },
   })
 
-  if (!user) {
-    throw new Error(`No user with id ${userId}`)
-  }
+  if (!user) throw new Error(`No user with id ${userId}`)
 
   const spent = await db.order.aggregate({
     where: { userId, status: 'placed' },
@@ -39,13 +47,20 @@ export async function getBudget(userId: string): Promise<Budget> {
   const spentCents = spent._sum.totalCents ?? 0
 
   return {
+    remainingCents: Math.max(0, startingCents - spentCents),
+    source: 'placeholder',
     startingCents,
     spentCents,
-    remainingCents: Math.max(0, startingCents - spentCents),
   }
 }
 
-/** Can this user afford this? Used before an order is allowed through. */
+/**
+ * Can this user afford this?
+ *
+ * Checked before we call the shop so the user gets a clear message instead of
+ * a raw 402. The shop still enforces it independently — this is a courtesy,
+ * not the actual guard.
+ */
 export async function canAfford(
   userId: string,
   costCents: number,
