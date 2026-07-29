@@ -18,14 +18,16 @@ export default async function OrdersPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold tracking-tight">My orders</h1>
-      <p className="mt-1 text-sm text-stone-500">
-        {budget?.source === 'api'
-          ? 'Balance and history come straight from the furniture shop.'
-          : 'Running on the local placeholder balance.'}
-      </p>
+      <div className="border-b-2 border-rule pb-6">
+        <p className="stencil text-blaze">
+          {budget?.source === 'api'
+            ? '/ Straight from the furniture shop'
+            : '/ Local placeholder balance'}
+        </p>
+        <h1 className="display mt-3 text-6xl leading-[0.86] sm:text-8xl">The Haul</h1>
+      </div>
 
-      <dl className="mt-6 grid gap-4 grid-cols-1 sm:grid-cols-3">
+      <dl className="mt-8 grid gap-5 grid-cols-1 sm:grid-cols-3">
         <Stat label="Orders placed" value={String(orders.length)} />
         <Stat label="Total spent" value={formatCents(spentCents)} />
         <Stat
@@ -36,25 +38,31 @@ export default async function OrdersPage() {
       </dl>
 
       {error && (
-        <p role="alert" className="mt-6 rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        <p role="alert" className="mt-8 border-l-4 border-blood bg-blood/10 px-4 py-3 text-sm text-[#ff8080]">
           {error}
         </p>
       )}
 
       {orders.length === 0 && !error ? (
-        <p className="mt-10 text-stone-600">
-          No orders yet.{' '}
-          <Link href="/catalogue" className="underline underline-offset-2 hover:text-stone-900">
-            Browse the catalogue
-          </Link>{' '}
-          to place your first one.
-        </p>
+        <div className="mt-12 border-2 border-dashed border-rule p-12 text-center">
+          <p className="display text-3xl text-ash">Nothing bought yet</p>
+          <Link
+            href="/catalogue"
+            className="stencil press mt-7 inline-block border-2 border-blaze bg-blaze px-6 py-3.5 text-black shadow-[4px_4px_0_0_#000]"
+          >
+            Go shopping
+          </Link>
+        </div>
       ) : (
-        <ul className="mt-8 space-y-4">
-          {orders.map((order) => (
-            <li key={order.id} className="rounded-lg border border-stone-200 bg-white p-4">
-              <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <p className="text-sm text-stone-500">
+        <ul className="mt-10 space-y-4">
+          {orders.map((order, index) => (
+            <li
+              key={order.id}
+              className="rack-in border-2 border-rule bg-plate p-5 transition-colors hover:border-rule-hot"
+              style={{ animationDelay: `${Math.min(index, 10) * 40}ms` }}
+            >
+              <div className="flex flex-wrap items-baseline justify-between gap-2 border-b-2 border-rule pb-3">
+                <p className="stencil text-ash">
                   {order.placedAt
                     ? order.placedAt.toLocaleString('en-AU', {
                         dateStyle: 'medium',
@@ -62,15 +70,17 @@ export default async function OrdersPage() {
                       })
                     : 'Recently'}
                 </p>
-                <p className="font-semibold tabular-nums">{formatCents(order.totalCents)}</p>
+                <p className="numerals text-2xl font-bold text-volt">
+                  {formatCents(order.totalCents)}
+                </p>
               </div>
-              <ul className="mt-2 text-sm text-stone-700">
+              <ul className="mt-3 space-y-1.5 text-sm text-bone">
                 {order.lines.map((line, index) => (
                   <li key={`${order.id}-${index}`} className="flex justify-between gap-4">
                     <span>
                       {line.quantity} × {line.name}
                     </span>
-                    <span className="tabular-nums text-stone-500">
+                    <span className="numerals text-ash">
                       {formatCents(line.totalCents)}
                     </span>
                   </li>
@@ -167,13 +177,17 @@ function Stat({
 }) {
   return (
     <div
-      className={`rounded-lg border p-4 ${
-        emphasis ? 'border-emerald-200 bg-emerald-50' : 'border-stone-200 bg-white'
+      className={`border-2 p-5 ${
+        emphasis
+          ? 'border-volt bg-volt/5 shadow-[6px_6px_0_0_#000]'
+          : 'border-rule bg-plate'
       }`}
     >
-      <dt className="text-sm text-stone-600">{label}</dt>
+      <dt className="stencil text-ash">{label}</dt>
       <dd
-        className={`mt-1 text-xl font-semibold tabular-nums ${emphasis ? 'text-emerald-900' : ''}`}
+        className={`numerals mt-3 text-3xl font-bold leading-none ${
+          emphasis ? 'text-volt' : 'text-bone'
+        }`}
       >
         {value}
       </dd>

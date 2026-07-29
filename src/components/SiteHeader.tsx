@@ -19,53 +19,72 @@ export async function SiteHeader() {
   }
 
   return (
-    <header className="border-b border-stone-200 bg-white">
-      <div className="w-full max-w-6xl mx-auto px-4 h-16 flex items-center gap-6">
-        <Link href="/catalogue" className="font-semibold tracking-tight">
-          Furniture Buyer
-        </Link>
-
-        <nav className="flex items-center gap-4 text-sm text-stone-600">
-          <Link href="/catalogue" className="hover:text-stone-900">
-            Catalogue
-          </Link>
-          {user && (
-            <Link href="/orders" className="hover:text-stone-900">
-              My orders
-            </Link>
-          )}
-        </nav>
-
-        <div className="ml-auto flex items-center gap-4 text-sm">
-          {budget && (
-            <span
-              className="tabular-nums rounded-full bg-emerald-50 text-emerald-800 px-3 py-1 font-medium"
-              title={
-                budget.source === 'api'
-                  ? 'Live balance from the furniture shop'
-                  : 'Placeholder balance — no API key configured'
-              }
-            >
-              {formatCents(budget.remainingCents)} left
+    <header className="sticky top-0 z-20">
+      <div className="hazard h-2" />
+      <div className="border-b-2 border-rule bg-deck/95 backdrop-blur">
+        <div className="max-w-[1400px] mx-auto px-5 sm:px-8 h-20 flex items-center gap-8">
+          <Link href="/catalogue" className="group shrink-0">
+            <span className="display block text-2xl sm:text-3xl leading-none">
+              Furniture
             </span>
-          )}
-          {user ? (
-            <form action={logout}>
-              <span className="text-stone-500 mr-3">{user.name}</span>
-              <button className="text-stone-600 hover:text-stone-900 underline underline-offset-2">
-                Log out
-              </button>
-            </form>
-          ) : (
-            <Link
-              href="/login"
-              className="rounded-md bg-stone-900 text-white px-3 py-1.5 hover:bg-stone-700"
-            >
-              Log in
-            </Link>
-          )}
+            <span className="display block text-2xl sm:text-3xl leading-none text-blaze transition-colors group-hover:text-volt">
+              Buyer
+            </span>
+          </Link>
+
+          <nav className="hidden sm:flex items-center gap-6">
+            <HeaderLink href="/catalogue">Catalogue</HeaderLink>
+            {user && <HeaderLink href="/orders">Orders</HeaderLink>}
+          </nav>
+
+          <div className="ml-auto flex items-center gap-4 sm:gap-6">
+            {budget && (
+              <div
+                className="text-right leading-none"
+                title={
+                  budget.source === 'api'
+                    ? 'Live balance from the furniture shop'
+                    : 'Placeholder balance — no API key configured'
+                }
+              >
+                <p className="stencil text-ash">
+                  {budget.source === 'api' ? 'Live budget' : 'Budget (local)'}
+                </p>
+                <p className="numerals mt-1.5 text-xl sm:text-2xl font-bold text-volt">
+                  {formatCents(budget.remainingCents)}
+                </p>
+              </div>
+            )}
+
+            {user ? (
+              <form action={logout} className="flex items-center gap-4">
+                <span className="stencil hidden text-ash md:block">{user.name}</span>
+                <button className="stencil press border-2 border-rule bg-plate px-4 py-2.5 text-bone hover:border-blood hover:text-blood">
+                  Log out
+                </button>
+              </form>
+            ) : (
+              <Link
+                href="/login"
+                className="stencil press border-2 border-blaze bg-blaze px-5 py-2.5 text-black shadow-[4px_4px_0_0_#000]"
+              >
+                Log in
+              </Link>
+            )}
+          </div>
         </div>
       </div>
     </header>
+  )
+}
+
+function HeaderLink({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <Link
+      href={href}
+      className="stencil relative text-ash transition-colors hover:text-bone after:absolute after:-bottom-2 after:left-0 after:h-0.5 after:w-0 after:bg-blaze after:transition-all hover:after:w-full"
+    >
+      {children}
+    </Link>
   )
 }

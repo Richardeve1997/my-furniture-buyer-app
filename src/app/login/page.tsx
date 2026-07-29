@@ -10,58 +10,90 @@ export default function LoginPage() {
   )
 
   return (
-    <div className="max-w-sm mx-auto mt-12">
-      <h1 className="text-2xl font-semibold tracking-tight">Log in</h1>
-      <p className="mt-2 text-sm text-stone-600">
-        Demo accounts for the hackathon: <code>buyer@demo.com</code> or{' '}
-        <code>buyer2@demo.com</code>, password <code>hackathon</code>.
-      </p>
+    <div className="mx-auto mt-10 max-w-md sm:mt-20">
+      <div className="hazard h-2" />
 
-      <form action={formAction} className="mt-6 space-y-4">
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium">
-            Email
-          </label>
-          <input
+      <div className="rack-in border-2 border-t-0 border-rule bg-plate p-7 shadow-[8px_8px_0_0_#000] sm:p-9">
+        <p className="stencil text-blaze">/ Access</p>
+        <h1 className="display mt-3 text-5xl leading-[0.9] sm:text-6xl">Log in</h1>
+
+        <form action={formAction} className="mt-9 space-y-6">
+          <Field
             id="email"
-            name="email"
+            label="Email"
             type="email"
             autoComplete="username"
             defaultValue="buyer@demo.com"
-            className="mt-1 w-full rounded-md border border-stone-300 px-3 py-2 bg-white"
           />
-        </div>
-
-        <div>
-          <label htmlFor="password" className="block text-sm font-medium">
-            Password
-          </label>
-          <input
+          <Field
             id="password"
-            name="password"
+            label="Password"
             type="password"
             autoComplete="current-password"
-            className="mt-1 w-full rounded-md border border-stone-300 px-3 py-2 bg-white"
           />
-        </div>
 
-        {state.error && (
-          <p
-            role="alert"
-            className="rounded-md bg-red-50 text-red-800 px-3 py-2 text-sm"
+          {state.error && (
+            <p
+              role="alert"
+              className="border-l-4 border-blood bg-blood/10 px-3 py-2.5 text-sm text-[#ff8080]"
+            >
+              {state.error}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={pending}
+            className="stencil press w-full border-2 border-blaze bg-blaze py-4 text-black shadow-[5px_5px_0_0_#000] hover:border-volt hover:bg-volt disabled:cursor-wait disabled:border-rule disabled:bg-plate disabled:text-ash disabled:shadow-none"
           >
-            {state.error}
-          </p>
-        )}
+            {pending ? 'Checking…' : 'Let me in'}
+          </button>
+        </form>
+      </div>
 
-        <button
-          type="submit"
-          disabled={pending}
-          className="w-full rounded-md bg-stone-900 text-white py-2 font-medium hover:bg-stone-700 disabled:opacity-60"
-        >
-          {pending ? 'Checking…' : 'Log in'}
-        </button>
-      </form>
+      <div className="mt-6 border-2 border-dashed border-rule p-5">
+        <p className="stencil text-ash">Demo accounts</p>
+        <dl className="numerals mt-3 space-y-1.5 text-sm text-bone">
+          <div className="flex justify-between gap-4">
+            <dt>buyer@demo.com</dt>
+            <dd className="text-ash">hackathon</dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt>buyer2@demo.com</dt>
+            <dd className="text-ash">hackathon</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  )
+}
+
+function Field({
+  id,
+  label,
+  type,
+  autoComplete,
+  defaultValue,
+}: {
+  id: string
+  label: string
+  type: string
+  autoComplete: string
+  defaultValue?: string
+}) {
+  return (
+    <div>
+      <label htmlFor={id} className="stencil block text-ash">
+        {label}
+      </label>
+      <input
+        id={id}
+        name={id}
+        type={type}
+        autoComplete={autoComplete}
+        defaultValue={defaultValue}
+        className="mt-2.5 w-full border-2 border-rule bg-deck px-4 py-3.5 text-bone transition-colors focus:border-blaze focus:outline-none"
+      />
     </div>
   )
 }

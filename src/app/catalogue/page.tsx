@@ -20,83 +20,103 @@ export default async function CataloguePage(props: {
   const user = await getCurrentUser()
   const currentPage = Math.max(1, Number(page ?? 1))
 
+  // Only the data fetching is guarded. Building the JSX inside a try/catch
+  // would look like it caught render errors, and it wouldn't — React renders
+  // components after this function returns.
+  let loaded: Awaited<ReturnType<typeof loadCatalogue>>
+  let enrichment: Map<
+    string,
+    { itemId: string; displayName: string | null; imageMimeType: string | null }
+  >
+
   try {
-    const { products, categories, hasNextPage, source } = await loadCatalogue(
-      category,
-      currentPage,
-    )
+    loaded = await loadCatalogue(category, currentPage)
 
     // Names and images come from our local copy of the catalogue. The API's
     // browse endpoint returns neither: product_name is a generic descriptor
     // ("Armchair"), and image_url is null on search-index by design.
     const local = await db.product.findMany({
-      where: { itemId: { in: products.map((p) => p.itemId) } },
+      where: { itemId: { in: loaded.products.map((p) => p.itemId) } },
       select: { itemId: true, displayName: true, imageMimeType: true },
     })
-    const enrichment = new Map(local.map((p) => [p.itemId, p]))
-
-    return (
-      <div>
-        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <h1 className="text-2xl font-semibold tracking-tight">Catalogue</h1>
-          <p className="text-sm text-stone-500">
-            {category ? category : 'All products'}
-            {source === 'api' ? ' · live from the furniture shop' : ' · local copy'}
-          </p>
-        </div>
-
-        <nav className="mt-4 flex flex-wrap gap-2">
-          <CategoryChip label="All" href="/catalogue" active={!category} />
-          {categories.map((name) => (
-            <CategoryChip
-              key={name}
-              label={name}
-              href={`/catalogue?category=${encodeURIComponent(name)}`}
-              active={category === name}
-            />
-          ))}
-        </nav>
-
-        {products.length === 0 ? (
-          <p className="mt-10 text-stone-600">No products found here.</p>
-        ) : (
-          <div className="mt-6 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-            {products.map((product) => {
-              const extra = enrichment.get(product.itemId)
-              return (
-                <ProductCard
-                  key={product.itemId}
-                  canOrder={Boolean(user)}
-                  product={{
-                    itemId: product.itemId,
-                    productName: extra?.displayName ?? product.productName,
-                    priceCents: product.priceCents,
-                    category: product.category,
-                    hasImage: Boolean(extra?.imageMimeType),
-                    colours: product.colours,
-                  }}
-                />
-              )
-            })}
-          </div>
-        )}
-
-        {(currentPage > 1 || hasNextPage) && (
-          <div className="mt-8 flex items-center justify-center gap-4 text-sm">
-            <PageLink page={currentPage - 1} category={category} disabled={currentPage === 1}>
-              Previous
-            </PageLink>
-            <span className="text-stone-500">Page {currentPage}</span>
-            <PageLink page={currentPage + 1} category={category} disabled={!hasNextPage}>
-              Next
-            </PageLink>
-          </div>
-        )}
-      </div>
-    )
+    enrichment = new Map(local.map((p) => [p.itemId, p]))
   } catch (error) {
     return <CatalogueUnavailable error={error} />
   }
+
+  const { products, categories, hasNextPage, source } = loaded
+
+  return (
+    <div>
+      <div className="border-b-2 border-rule pb-6">
+        <p className="stencil text-blaze">
+          {source === 'api' ? '/ Live from the furniture shop' : '/ Local copy'}
+        </p>
+        <h1 className="display mt-3 text-6xl leading-[0.86] sm:text-8xl">
+          {category ?? 'The Floor'}
+        </h1>
+      </div>
+
+      <nav className="mt-6 flex flex-wrap gap-2">
+        <CategoryChip label="All" href="/catalogue" active={!category} />
+        {categories.map((name) => (
+          <CategoryChip
+            key={name}
+            label={name}
+            href={`/catalogue?category=${encodeURIComponent(name)}`}
+            active={category === name}
+          />
+        ))}
+      </nav>
+
+      {products.length === 0 ? (
+        <p className="stencil mt-16 text-center text-ash">Nothing here.</p>
+      ) : (
+        <div className="mt-8 grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {products.map((product, index) => {
+            const extra = enrichment.get(product.itemId)
+            return (
+              <ProductCard
+                key={product.itemId}
+                index={index}
+                canOrder={Boolean(user)}
+                product={{
+                  itemId: product.itemId,
+                  productName: extra?.displayName ?? product.productName,
+                  priceCents: product.priceCents,
+                  category: product.category,
+                  hasImage: Boolean(extra?.imageMimeType),
+                  colours: product.colours,
+                }}
+              />
+            )
+          })}
+        </div>
+      )}
+
+      {(currentPage > 1 || hasNextPage) && (
+        <div className="mt-12 flex items-center justify-center gap-8">
+          <PageLink
+            page={currentPage - 1}
+            category={category}
+            disabled={currentPage === 1}
+          >
+            ← Prev
+          </PageLink>
+          <span className="numerals text-ash">
+            Page {String(currentPage).padStart(2, '0')}
+          </span>
+          <PageLink
+            page={currentPage + 1}
+            category={category}
+            disabled={!hasNextPage}
+          >
+            Next →
+          </PageLink>
+        </div>
+      )}
+    </div>
+  )
 }
 
 /**
@@ -106,7 +126,10 @@ export default async function CataloguePage(props: {
  * We ask for one more product than we show: that's how we know whether there's
  * a next page, since search-index reports no total count.
  */
-async function loadCatalogue(category: string | undefined, currentPage: number) {
+async function loadCatalogue(
+  category: string | undefined,
+  currentPage: number,
+) {
   const skip = (currentPage - 1) * PAGE_SIZE
 
   if (isApiConfigured()) {
@@ -172,15 +195,18 @@ function CatalogueUnavailable({ error }: { error: unknown }) {
       : "Couldn't reach the furniture shop just now."
 
   return (
-    <div className="mx-auto mt-16 max-w-lg text-center">
-      <h1 className="text-xl font-semibold">The catalogue isn&apos;t loading</h1>
-      <p className="mt-3 text-stone-600">{message}</p>
-      <Link
-        href="/catalogue"
-        className="mt-6 inline-block rounded-md bg-stone-900 px-4 py-2 text-sm font-medium text-white hover:bg-stone-700"
-      >
-        Try again
-      </Link>
+    <div className="mx-auto mt-20 max-w-xl">
+      <div className="hazard h-2" />
+      <div className="border-2 border-t-0 border-rule bg-plate p-8 shadow-[6px_6px_0_0_#000]">
+        <h1 className="display text-4xl sm:text-5xl">Catalogue down</h1>
+        <p className="mt-5 leading-relaxed text-ash">{message}</p>
+        <Link
+          href="/catalogue"
+          className="stencil press mt-8 inline-block border-2 border-blaze bg-blaze px-6 py-3.5 text-black shadow-[4px_4px_0_0_#000]"
+        >
+          Try again
+        </Link>
+      </div>
     </div>
   )
 }
@@ -197,10 +223,10 @@ function CategoryChip({
   return (
     <Link
       href={href}
-      className={`rounded-full px-3 py-1 text-sm border ${
+      className={`stencil press border-2 px-3.5 py-2.5 ${
         active
-          ? 'bg-stone-900 text-white border-stone-900'
-          : 'bg-white text-stone-700 border-stone-300 hover:border-stone-400'
+          ? 'border-blaze bg-blaze text-black shadow-[3px_3px_0_0_#000]'
+          : 'border-rule bg-plate text-ash hover:border-rule-hot hover:text-bone'
       }`}
     >
       {label}
@@ -219,7 +245,7 @@ function PageLink({
   disabled: boolean
   children: React.ReactNode
 }) {
-  if (disabled) return <span className="text-stone-300">{children}</span>
+  if (disabled) return <span className="stencil text-rule-hot">{children}</span>
 
   const params = new URLSearchParams()
   if (category) params.set('category', category)
@@ -228,7 +254,7 @@ function PageLink({
   return (
     <Link
       href={`/catalogue?${params}`}
-      className="text-stone-700 hover:text-stone-900 underline underline-offset-2"
+      className="stencil text-bone hover:text-blaze"
     >
       {children}
     </Link>

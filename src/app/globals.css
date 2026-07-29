@@ -1,26 +1,169 @@
 @import "tailwindcss";
 
+/*
+ * INDUSTRIAL BRUTALISM
+ *
+ * Loading dock meets weight room. Concrete-black surfaces, safety orange,
+ * acid lime. Nothing is rounded, nothing is soft, every edge is a hard rule.
+ * Shadows do not blur — they offset, like a steel plate sitting on another
+ * steel plate.
+ */
+
+@theme {
+  /* Surfaces — layered concrete */
+  --color-pit: #08080a;
+  --color-deck: #101014;
+  --color-plate: #17171d;
+  --color-rule: #2a2a34;
+  --color-rule-hot: #3d3d4a;
+
+  /* Type */
+  --color-bone: #f4f1ea;
+  --color-ash: #8b8b97;
+
+  /* Accents — safety signage */
+  --color-blaze: #ff4d00;
+  --color-volt: #ccff00;
+  --color-blood: #ff2d2d;
+
+  --font-display: var(--font-anton), "Arial Narrow", sans-serif;
+  --font-body: var(--font-archivo), sans-serif;
+  --font-mono: var(--font-mono-stack), ui-monospace, monospace;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-pit);
+  color: var(--color-bone);
+  font-family: var(--font-body);
+  /* Concrete grain — a fixed noise wash so surfaces never read as flat fill */
+  background-image:
+    radial-gradient(circle at 15% -10%, rgba(255, 77, 0, 0.11), transparent 45%),
+    radial-gradient(circle at 100% 0%, rgba(204, 255, 0, 0.06), transparent 38%);
+  background-attachment: fixed;
+}
+
+/* Grain overlay, sits above the background and below everything else */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.22;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 220 220' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+}
+
+body > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---------------------------------------------------------------- type */
+
+/* Line-height is deliberately NOT set here: Anton is very tight by default and
+   the right value differs between a one-line page title and a wrapping product
+   name. Callers set `leading-*` themselves. */
+.display {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+
+.stencil {
+  font-family: var(--font-body);
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-weight: 700;
+  font-size: 0.66rem;
+}
+
+.numerals {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* ------------------------------------------------------------- surfaces */
+
+/* Hazard tape. Used as a top rule on key panels. */
+.hazard {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--color-blaze) 0px,
+    var(--color-blaze) 10px,
+    #0b0b0d 10px,
+    #0b0b0d 20px
+  );
+}
+
+/* A plate sitting on the deck: hard border, hard offset shadow. */
+.plate {
+  border: 2px solid var(--color-rule);
+  background-color: var(--color-plate);
+  box-shadow: 6px 6px 0 0 #000;
+}
+
+.plate-hot {
+  border-color: var(--color-blaze);
+  box-shadow: 6px 6px 0 0 var(--color-blaze);
+}
+
+/* Press effect: the plate sinks into the deck under the cursor. */
+.press {
+  transition:
+    transform 90ms cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 90ms cubic-bezier(0.2, 0, 0, 1),
+    background-color 120ms linear;
+}
+
+.press:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0 0 #000;
+}
+
+.press:active:not(:disabled) {
+  transform: translate(4px, 4px);
+  box-shadow: 0 0 0 0 #000;
+}
+
+/* -------------------------------------------------------------- motion */
+
+@keyframes rack-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rack-in {
+  animation: rack-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rack-in {
+    animation: none;
+  }
+  .press:hover:not(:disabled),
+  .press:active:not(:disabled) {
+    transform: none;
+  }
+}
+
+/* Focus that matches the rest of the language: a hard orange block */
+*:focus-visible {
+  outline: 3px solid var(--color-blaze);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--color-volt);
+  color: #000;
 }
